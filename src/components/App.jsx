@@ -2,14 +2,23 @@ import React from 'react';
 import Header from './Header';
 import Footer from './Footer';
 import BestBooks from './BestBooks';
+import Profile from './About';
+
 import 'bootstrap/dist/css/bootstrap.min.css';
+import './App.css'; //going after bootstrap will override it easier.
 import {
   BrowserRouter as Router,
   Routes,
   Route
 } from "react-router-dom";
 
+
+
 class App extends React.Component {
+
+  
+  
+
   render() {
     return (
       <>
@@ -21,7 +30,12 @@ class App extends React.Component {
               element={<BestBooks />}
             >
             </Route>
-            {/* PLACEHOLDER: add a route with a path of '/about' that renders the `About` component */}
+          
+            <Route 
+              path="/about"
+              element={<Profile />}
+            >
+            </Route>
           </Routes>
           <Footer />
         </Router>
