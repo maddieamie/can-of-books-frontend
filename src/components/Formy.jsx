@@ -7,7 +7,7 @@ export default class Formy extends Component{
     render(){
         return (
             <>
-            <div>
+            
         <Form onSubmit={this.props.handleTitleSubmit}>
         <Form.Control  id= "formy" type="text" placeholder="Enter a book title to begin." size="lg" variant="warning" />
         <div className="d-grid">
@@ -15,7 +15,7 @@ export default class Formy extends Component{
         </div>
         
         </Form>
-        </div>
+        
         </>
         )
     }
