@@ -30,6 +30,7 @@ Start time: 11-14-23
 Finish time: 11-19-23
 
 Actual time needed to complete: 3 days
+
 ---
 Name of feature: Create Book & Delete Book
 
@@ -40,6 +41,7 @@ Start time: _____
 Finish time: _____
 
 Actual time needed to complete: _____
+
 ---
 Name of feature: -----
 
@@ -50,6 +52,7 @@ Start time: _____
 Finish time: _____
 
 Actual time needed to complete: _____
+
 ---
 
 ## Credit and Collaborations
