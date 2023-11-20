@@ -1,8 +1,9 @@
 import React from 'react';
 import { Carousel, Image, Button } from "react-bootstrap";
 import axios from "axios";
-import Formy from './Formy';
 import AlertComp from './AlertComp';
+import BookFormModal from './BookFormModal';
+import ToastAlert from './ToastAlert';
 
 
 const SERVER = import.meta.env.VITE_SERVER;
@@ -12,7 +13,7 @@ class BestBooks extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: '',
+      //searchQuery: '',
       books: [],
       displayModal: false,
       error: null,
@@ -26,12 +27,8 @@ class BestBooks extends React.Component {
     this.fetchBooks();
   }
 
-  async fetchBooks(title = null) {
-    let apiUrl = `${SERVER}/books`;
-
-    if (title) {
-      apiUrl += `?title=${title}`;
-    }
+  async fetchBooks() {
+    let apiUrl = `${SERVER}/books`
 
     try {
       const response = await axios.get(apiUrl);
@@ -42,16 +39,48 @@ class BestBooks extends React.Component {
     }
   }
 
-  handleTitleSubmit = (event) => {
-    event.preventDefault();
-    const title = event.target.location.value;
-    this.setState({title: title})
-    console.log({ title });
-    this.fetchBooks(title);
+  /*async findBook() {
+    const url = `${SERVER}/books?title=${title}`
+    try {
+      const res = await axios.get(url);
+      this.setState({books: res.data});
+    }
+    catch (error){
+      console.log(error);
+    }
   }
+
+  handleSearch = (e) => {
+    e.preventDefault();
+
+    const { searchQuery } = this.state;
+    
+   
+
+    // Make the API request to the server (backend) to avoid exposing the key
+    axios.get(`${SERVER}/?title=${searchQuery}`)
+      .then(async (response) => {
+        const bookdata = response.data;
+        console.log(bookdata);
+        this.setState({books: bookdata})
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        this.setState({ error: `An error occurred: ${error.message}. Code: ${error.code}.` });
+      });
+  } */
+
+  /*handleTitleSubmit = (event) => {
+    event.preventDefault();
+    const title = event.target.value;
+    //this.setState({title: newtitle})
+    this.findBook(title);
+
+  }*/
 
 
   postBook = (newBook) => {
+    
     const url = `${SERVER}/books`
     axios.post(url, newBook)
       .then(res => this.setState({ books: [...this.state.books, res.data] }))
@@ -59,6 +88,7 @@ class BestBooks extends React.Component {
 
   handleDelete = (id) => {
     this.setState({displayToast1: true})
+    
 
     axios
       .delete(`${SERVER}/books/${id}`)
@@ -105,35 +135,41 @@ class BestBooks extends React.Component {
         <h2>Books of Excellent Character</h2>
 
         <div id="formholder">
-        <Formy 
-        handleTitleSubmit={this.handleTitleSubmit} />
         <div className="d-grid">
-        <Button onClick={this.handleModal} variant="warning" size="lg" id="liladd">Add Book to Collection</Button>
+        <Button onClick={this.handleModal} variant="outline-warning" size="lg" id="liladd">Add Book to Collection</Button>
         </div>
 
         <BookFormModal closeModal={this.closeModal} handleModal={this.handleModal} postBook={this.postBook}/> 
         </div>
 
-        {this.state.books.length ? (
-          this.state.books.map( (book) =>
+        
           <Carousel>
-            <Carousel.Item id={book._id}>
-              <Image src="https://images.pexels.com/photos/3309961/pexels-photo-3309961.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2" text="Img from Elīna Arāja on Pexels.com" alt="an open book with a pressed wildflower bookmark" />
+          {this.state.books.length > 0 ? (
+          this.state.books.map( (book, index) =>
+            <Carousel.Item key={index}>
+                <img
+                  className="d-block w-100"
+                  src="https://www.publicdomainpictures.net/pictures/140000/velka/black-square-with-fleck-pattern.jpg"
+                  height="400px"
+                  width="400px"
+                  alt="black background"
+                />
               <Carousel.Caption>
                 <h3>{book.title}</h3>
-                <small className="text-body-secondary">{book.author}</small>
+                <small>{book.author}</small>
                 <p><em>{book.genre}</em> ~~~ {book.description}</p>
-                <p>This book is: <mark>{{book.status ? 'Read' : 'Not Read'}}</mark></p>
+                <p>This book is: <mark>{book.status ? 'Read' : 'Not Read'}</mark></p>
               </Carousel.Caption>
+              <Button id="deleteb1" variant="danger" onClick={() => this.handleDelete(book._id)}>Delete Book</Button> 
+              <ToastAlert handleDelete={this.handleDelete} closeToast={this.closeToast} deleted={this.state.deleted}/>
             </Carousel.Item>
-            <Carousel.Item><Button id="deleteb1" variant="danger" onClick={() => this.handleDelete(book._id)}>Delete Book</Button> 
-            <ToastAlert handleDelete={this.handleDelete} closeToast={this.closeToast} deleted={this.state.deleted}/>
-            </Carousel.Item>
+            )
+            ) : (
+              <h3>No Books Found :( Please add one to our database!</h3>
+            )}
+            
           </Carousel>
-        )
-        ) : (
-          <h3>No Books Found :( Please add one to our database!</h3>
-        )}
+        
 
             {this.state.error && (
             <AlertComp

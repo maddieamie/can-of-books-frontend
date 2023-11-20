@@ -1,6 +1,6 @@
 import React from 'react';
 import { Component } from "react";
-import { Modal, Form} from "react-bootstrap";
+import { Modal, Form, Button} from "react-bootstrap";
 
 
 export default class BookFormModal extends Component{
@@ -25,7 +25,7 @@ export default class BookFormModal extends Component{
     render(){
     return (
     <>
-      <Modal show={show} onHide={this.props.closeModal}>
+      <Modal onHide={this.props.closeModal}>
         <Modal.Header closeButton>
           <Modal.Title>Add Book Form</Modal.Title>
         </Modal.Header>
