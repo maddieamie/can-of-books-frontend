@@ -1,6 +1,6 @@
-import React from 'react';
-import { Carousel, Image, Button } from "react-bootstrap";
 import axios from "axios";
+import React from 'react';
+import { Carousel, Button } from "react-bootstrap";
 import AlertComp from './AlertComp';
 import BookFormModal from './BookFormModal';
 import ToastAlert from './ToastAlert';
