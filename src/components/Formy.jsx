@@ -8,10 +8,10 @@ export default class Formy extends Component{
         return (
             <>
             
-        <Form onSubmit={this.props.handleTitleSubmit}>
-        <Form.Control  id= "formy" type="text" placeholder="Enter a book title to begin." size="lg" variant="warning" />
+        <Form onSubmit={this.props.handleSearch}>
+        <Form.Control  id= "formy" type="text" placeholder="Enter a book title to begin." size="lg" variant="outline-warning" />
         <div className="d-grid">
-        <Button type='submit' variant="warning" size="lg" id="lil">Find Book</Button>
+        <Button type='submit' variant="outline-warning" size="lg" id="lil">Find Book</Button>
         </div>
         
         </Form>
