@@ -9,7 +9,7 @@ export default class BookFormModal extends Component{
         e.preventDefault();
 
         const form = e.target;
-        // console.log(form);
+      
 
         const newBook = {
             title: form.title.value,

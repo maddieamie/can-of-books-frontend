@@ -39,44 +39,7 @@ class BestBooks extends React.Component {
     }
   }
 
-  /*async findBook() {
-    const url = `${SERVER}/books?title=${title}`
-    try {
-      const res = await axios.get(url);
-      this.setState({books: res.data});
-    }
-    catch (error){
-      console.log(error);
-    }
-  }
 
-  handleSearch = (e) => {
-    e.preventDefault();
-
-    const { searchQuery } = this.state;
-    
-   
-
-    // Make the API request to the server (backend) to avoid exposing the key
-    axios.get(`${SERVER}/?title=${searchQuery}`)
-      .then(async (response) => {
-        const bookdata = response.data;
-        console.log(bookdata);
-        this.setState({books: bookdata})
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        this.setState({ error: `An error occurred: ${error.message}. Code: ${error.code}.` });
-      });
-  } */
-
-  /*handleTitleSubmit = (event) => {
-    event.preventDefault();
-    const title = event.target.value;
-    //this.setState({title: newtitle})
-    this.findBook(title);
-
-  }*/
 
 
   postBook = (newBook) => {
