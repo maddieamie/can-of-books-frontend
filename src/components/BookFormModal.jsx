@@ -3,67 +3,68 @@ import { Component } from "react";
 import { Modal, Form, Button} from "react-bootstrap";
 
 
+
+
 export default class BookFormModal extends Component{
 
-    submitHandler = (e) => {
-        e.preventDefault();
+    submitHandler = (event) => {
+        event.preventDefault();
 
-        const form = e.target;
-      
-
-        const newBook = {
-            title: form.title.value,
-            author: form.author.value,
-            genre: form.genre.value,
-            description: form.description.value,
-            status: form.status.checked
-        };
-
-        this.props.postBook(newBook);
+        this.props.postBook({
+            
+                title: event.target.titlef.value,
+                author: event.target.authorf.value,
+                genre: event.target.genref.value,
+                description: event.target.descriptionf.value,
+                status: event.target.formstatus.checked ? true : false 
+        });
+        this.props.closeModal();
     }
 
     render(){
     return (
     <>
-      <Modal onHide={this.props.closeModal}>
-        <Modal.Header closeButton>
+      <Modal show={this.props.show} onHide={() => { this.props.closeModal()}}>
+
+
+        <Modal.Header closeButton={this.props.closeModal}>
           <Modal.Title>Add Book Form</Modal.Title>
         </Modal.Header>
         <Modal.Body>  <Form onSubmit={this.submitHandler}>
 
-            <Form.Group controlId="title">
+            <Form.Group controlId="titlef">
                 <Form.Label>Book Title</Form.Label>
                 <Form.Control type="text" />
             </Form.Group>
 
-            <Form.Group controlId="author">
+            <Form.Group controlId="authorf">
                 <Form.Label>Book Author</Form.Label>
                 <Form.Control type="text" />
             </Form.Group>
 
-            <Form.Group controlId="genre">
+            <Form.Group controlId="genref">
                 <Form.Label>Book Genre(s): Fantasy, Sci-Fi, Horror, Mystery...</Form.Label>
                 <Form.Control type="text" />
             </Form.Group>
 
-            <Form.Group controlId="description">
+            <Form.Group controlId="descriptionf">
                 <Form.Label>Book Description. Example: 'The remote island of Masquapaug has not seen a dragon in many generations—until fifteen-year-old Anequs finds...'</Form.Label>
                 <Form.Control type="text" />
             </Form.Group>
 
-            <Form.Group controlId="status">
-                        <Form.Check type="checkbox" label="Click box if you have read this book." />
+            <Form.Group controlId="formstatus">
+                        <Form.Check type="checkbox" label="Click box if you have read this book." value="true" />
+
                     </Form.Group>
 
-
+          <Button variant="primary" type="submit">
+            Save & Add Book to Collection
+          </Button>
             </Form>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="danger" onClick={this.props.closeModal}>
+        <Button variant="danger" onClick={this.props.closeModal}>
             Close Without Saving
-          </Button>
-          <Button variant="primary" onClick={this.props.postBook}>
-            Save & Add Book to Collection
           </Button>
         </Modal.Footer>
       </Modal>

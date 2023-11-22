@@ -1,6 +1,6 @@
 import axios from "axios";
 import React from 'react';
-import { Carousel, Button } from "react-bootstrap";
+import { Carousel, Button, Modal } from "react-bootstrap";
 import AlertComp from './AlertComp';
 import BookFormModal from './BookFormModal';
 import ToastAlert from './ToastAlert';
@@ -40,19 +40,22 @@ class BestBooks extends React.Component {
   }
 
 
-
-
   postBook = (newBook) => {
+
     
     const url = `${SERVER}/books`
     axios.post(url, newBook)
-      .then(res => this.setState({ books: [...this.state.books, res.data] }))
+      .then(res => newBook = res.data)
+      .then(newBook => this.setState({ books: [...this.state.books, newBook] }))
+      .then(console.log(newBook))
+      .then(this.fetchBooks())
+      .catch ((error) => {
+        console.error('Error posting book:', error);
+      });
   }
 
   handleDelete = (id) => {
-    this.setState({displayToast1: true})
     
-
     axios
       .delete(`${SERVER}/books/${id}`)
       .then((response) => {
@@ -78,6 +81,9 @@ class BestBooks extends React.Component {
     this.setState({displayToast1: false, displayToast2: false})
   }
 
+  openToast = (event) => {
+    this.setState({displayToast1: true})
+  }
 
 
   handleModal = (event) => {
@@ -102,7 +108,7 @@ class BestBooks extends React.Component {
         <Button onClick={this.handleModal} variant="outline-warning" size="lg" id="liladd">Add Book to Collection</Button>
         </div>
 
-        <BookFormModal closeModal={this.closeModal} handleModal={this.handleModal} postBook={this.postBook}/> 
+        <BookFormModal show={this.state.displayModal} closeModal={this.closeModal} handleModal={this.handleModal} postBook={this.postBook}/> 
         </div>
 
         
@@ -122,9 +128,9 @@ class BestBooks extends React.Component {
                 <small>{book.author}</small>
                 <p><em>{book.genre}</em> ~~~ {book.description}</p>
                 <p>This book is: <mark>{book.status ? 'Read' : 'Not Read'}</mark></p>
+                <Button id="deleteb1" variant="danger" onClick={this.openToast}>Delete Book</Button> 
+              <ToastAlert handleDelete={this.handleDelete(book._id)} closeToast={this.closeToast} deleted={this.state.deleted}/>
               </Carousel.Caption>
-              <Button id="deleteb1" variant="danger" onClick={() => this.handleDelete(book._id)}>Delete Book</Button> 
-              <ToastAlert handleDelete={this.handleDelete} closeToast={this.closeToast} deleted={this.state.deleted}/>
             </Carousel.Item>
             )
             ) : (
