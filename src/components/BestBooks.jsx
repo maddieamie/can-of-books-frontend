@@ -1,9 +1,12 @@
 import axios from "axios";
-import React from 'react';
-import { Carousel, Button, Modal } from "react-bootstrap";
+import React from 'react'; 
+
+import { Carousel, Button, Alert} from "react-bootstrap";
 import AlertComp from './AlertComp';
 import BookFormModal from './BookFormModal';
-import ToastAlert from './ToastAlert';
+import DeleteConfirm from "./DeleteConfirm";
+
+
 
 
 const SERVER = import.meta.env.VITE_SERVER;
@@ -17,17 +20,20 @@ class BestBooks extends React.Component {
       books: [],
       displayModal: false,
       error: null,
-      displayToast1: false,
-      displayToast2: false,
-      deleted: ''
+      deleted: '',
+      showDeleteConfirmation: false,
+      deleteBookId: '',
+      showAlert: false
     }
   }
  
   componentDidMount() {
+    console.log('component mounted')
     this.fetchBooks();
   }
 
   async fetchBooks() {
+    console.log('fetch books running')
     let apiUrl = `${SERVER}/books`
 
     try {
@@ -41,20 +47,21 @@ class BestBooks extends React.Component {
 
 
   postBook = (newBook) => {
-
+    console.log('post books running')
     
     const url = `${SERVER}/books`
     axios.post(url, newBook)
-      .then(res => newBook = res.data)
-      .then(newBook => this.setState({ books: [...this.state.books, newBook] }))
+      .then(newBook => this.setState((prevState) => ({ books: [...prevState.books, newBook.data] })))
       .then(console.log(newBook))
       .then(this.fetchBooks())
       .catch ((error) => {
         console.error('Error posting book:', error);
-      });
+      })
   }
 
   handleDelete = (id) => {
+    console.log('handleDelete running')
+    
     
     axios
       .delete(`${SERVER}/books/${id}`)
@@ -62,29 +69,22 @@ class BestBooks extends React.Component {
         const deletedBook = response.data;
 
         this.setState({
-          displayToast1: false,
-          displayToast2: true,
           deleted: deletedBook,
         });
-
+      
         const updatedBooks = this.state.books.filter((book) => book._id !== id);
         this.setState({ books: updatedBooks });
+
+
+        
       })
+      .then( this.setState({showAlert: true}))
       .catch((error) => {
         console.error('Error deleting book:', error);
         //need to catch for Alert badge or will it catch on its own?
-        this.setState({ displayToast1: false });
+        
       });
   };
-
-  closeToast = (event) => {
-    this.setState({displayToast1: false, displayToast2: false})
-  }
-
-  openToast = (event) => {
-    this.setState({displayToast1: true})
-  }
-
 
   handleModal = (event) => {
       this.setState({ displayModal: true})
@@ -93,6 +93,7 @@ class BestBooks extends React.Component {
   closeModal = (event) => {
     this.setState({displayModal: false})
   }
+
 
 
   render() {
@@ -107,6 +108,11 @@ class BestBooks extends React.Component {
         <div className="d-grid">
         <Button onClick={this.handleModal} variant="outline-warning" size="lg" id="liladd">Add Book to Collection</Button>
         </div>
+        {this.state.error && (
+            <AlertComp
+              errormessage={this.state.error}
+            />
+          )}
 
         <BookFormModal show={this.state.displayModal} closeModal={this.closeModal} handleModal={this.handleModal} postBook={this.postBook}/> 
         </div>
@@ -128,8 +134,23 @@ class BestBooks extends React.Component {
                 <small>{book.author}</small>
                 <p><em>{book.genre}</em> ~~~ {book.description}</p>
                 <p>This book is: <mark>{book.status ? 'Read' : 'Not Read'}</mark></p>
-                <Button id="deleteb1" variant="danger" onClick={this.openToast}>Delete Book</Button> 
-              <ToastAlert handleDelete={this.handleDelete(book._id)} closeToast={this.closeToast} deleted={this.state.deleted}/>
+                <Button
+                  id="deleteb1"
+                  variant="danger"
+                  onClick={() => this.setState({ showDeleteConfirmation: true, deleteBookId: book._id })}
+                >
+                  Delete Book
+                </Button>
+
+                {this.state.showDeleteConfirmation && (
+                  <DeleteConfirm
+                    handleDelete={() => {
+                      this.handleDelete(this.state.deleteBookId);
+                      this.setState({ showDeleteConfirmation: false });
+                    }}
+                  />
+                )}
+
               </Carousel.Caption>
             </Carousel.Item>
             )
@@ -139,12 +160,15 @@ class BestBooks extends React.Component {
             
           </Carousel>
         
+          {this.state.showAlert && (
+            <Alert variant="success">
+                    Book Deleted!
+                    <Button onClick={() => this.setState({showAlert: false})} variant="outline-success">
+            Close me
+          </Button>
+                  </Alert>)}
 
-            {this.state.error && (
-            <AlertComp
-              errormessage={this.state.error}
-            />
-          )}
+
       </>
     )
   }

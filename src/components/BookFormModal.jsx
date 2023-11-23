@@ -12,11 +12,11 @@ export default class BookFormModal extends Component{
 
         this.props.postBook({
             
-                title: event.target.titlef.value,
-                author: event.target.authorf.value,
-                genre: event.target.genref.value,
-                description: event.target.descriptionf.value,
-                status: event.target.formstatus.checked ? true : false 
+                "title": event.target.titlef.value,
+                "author": event.target.authorf.value,
+                "genre": event.target.genref.value,
+                "description": event.target.descriptionf.value,
+                "status": event.target.formstatus.checked ? true : false 
         });
         this.props.closeModal();
     }
