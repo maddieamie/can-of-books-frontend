@@ -5,6 +5,7 @@ import { Carousel, Button, Alert} from "react-bootstrap";
 import AlertComp from './AlertComp';
 import BookFormModal from './BookFormModal';
 import DeleteConfirm from "./DeleteConfirm";
+import UpdateModal from "./UpdateModal";
 
 
 
@@ -18,12 +19,16 @@ class BestBooks extends React.Component {
     this.state = {
       //searchQuery: '',
       books: [],
-      displayModal: false,
+      displayAddModal: false,
+      displayUpdateModal: false,
       error: null,
       deleted: '',
-      showDeleteConfirmation: false,
+      updateBook: '',
+      showDeleteConfirmation: false, 
+      showUpdateAlert: false,
       deleteBookId: '',
-      showAlert: false
+      updatedBooks: '',
+      showAlert: false,
     }
   }
  
@@ -58,6 +63,32 @@ class BestBooks extends React.Component {
         console.error('Error posting book:', error);
       })
   }
+  
+  handleUpdate = (bookToUpdate) => {
+    console.log('HandleUpdate running');
+
+    if (!bookToUpdate._id) {
+      console.error('Invalid book ID');
+      return;
+  }
+
+    axios
+    .put(`${SERVER}/books/${bookToUpdate._id}`, bookToUpdate)
+    .then(response => {
+        const updatedBook = response.data;
+        this.setState(prevState => ({
+            books: prevState.books.map(existingBook =>
+                existingBook._id === updatedBook._id ? updatedBook : existingBook
+            ),
+            showUpdateAlert: true
+        }));
+    })
+    .catch(error => {
+        console.error('Error updating book:', error);
+    });
+}
+
+
 
   handleDelete = (id) => {
     console.log('handleDelete running')
@@ -87,13 +118,24 @@ class BestBooks extends React.Component {
   };
 
   handleModal = (event) => {
-      this.setState({ displayModal: true})
+      this.setState({ displayAddModal: true})
   }
 
   closeModal = (event) => {
-    this.setState({displayModal: false})
+    this.setState({displayAddModal: false})
   }
 
+
+  handle2Modal = (book) => {
+    console.log(book);
+
+    this.setState({updateBook: book});
+    this.setState({ displayUpdateModal: true});
+}
+
+  close2Modal = (event) => {
+  this.setState({displayUpdateModal: false})
+}
 
 
   render() {
@@ -114,14 +156,17 @@ class BestBooks extends React.Component {
             />
           )}
 
-        <BookFormModal show={this.state.displayModal} closeModal={this.closeModal} handleModal={this.handleModal} postBook={this.postBook}/> 
+        <BookFormModal show={this.state.displayAddModal} closeModal={this.closeModal} handleModal={this.handleModal} postBook={this.postBook}/> 
+
+        {this.state.updateBook && (
+        <UpdateModal show={this.state.displayUpdateModal} closeModal={this.close2Modal} handleModal={this.handle2Modal} handleUpdate={this.handleUpdate} updateBook={this.state.updateBook}/> )}
         </div>
 
         
-          <Carousel>
+          <Carousel interval={null}  pause={!this.state.displayUpdateModal}>
           {this.state.books.length > 0 ? (
           this.state.books.map( (book, index) =>
-            <Carousel.Item key={index}>
+            <Carousel.Item key={index}  data-bs-interval="false">
                 <img
                   className="d-block w-100"
                   src="https://www.publicdomainpictures.net/pictures/140000/velka/black-square-with-fleck-pattern.jpg"
@@ -140,6 +185,13 @@ class BestBooks extends React.Component {
                   onClick={() => this.setState({ showDeleteConfirmation: true, deleteBookId: book._id })}
                 >
                   Delete Book
+                </Button>
+                <Button
+                  id="updateb1"
+                  variant="secondary"
+                  onClick={() => this.handle2Modal(book)}
+                >
+                  Update Book
                 </Button>
 
                 {this.state.showDeleteConfirmation && (
@@ -164,6 +216,13 @@ class BestBooks extends React.Component {
             <Alert variant="success">
                     Book Deleted!
                     <Button onClick={() => this.setState({showAlert: false})} variant="outline-success">
+            Close me
+          </Button>
+                  </Alert>)}
+         {this.state.showUpdateAlert && (
+            <Alert variant="success">
+                    Book Updated!
+                    <Button onClick={() => this.setState({showUpdateAlert: false})} variant="outline-success">
             Close me
           </Button>
                   </Alert>)}
