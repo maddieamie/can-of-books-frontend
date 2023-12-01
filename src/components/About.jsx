@@ -2,7 +2,7 @@ import { Component} from "react";
 
 import { Card, Button } from "react-bootstrap";
 
-class Profile extends Component {
+class Profile1 extends Component {
 
   render() {
     
@@ -21,4 +21,4 @@ class Profile extends Component {
   }
 }
 
-export default Profile;
+export default Profile1;

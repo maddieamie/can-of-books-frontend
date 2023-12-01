@@ -6,6 +6,7 @@ import AlertComp from './AlertComp';
 import BookFormModal from './BookFormModal';
 import DeleteConfirm from "./DeleteConfirm";
 import UpdateModal from "./UpdateModal";
+import { withAuth0 } from '@auth0/auth0-react';
 
 
 
@@ -31,31 +32,91 @@ class BestBooks extends React.Component {
       showAlert: false,
     }
   }
- 
+
+
   componentDidMount() {
     console.log('component mounted')
+
     this.fetchBooks();
+  }
+
+  getToken = () => {
+    return this.props.auth0.getIdTokenClaims()
+    .then( res => res.__raw)
+    .catch(error => console.log(error))
   }
 
   async fetchBooks() {
     console.log('fetch books running')
-    let apiUrl = `${SERVER}/books`
+    
+    if (this.props.auth0.isAuthenticated) {
+
+      const res = await this.props.auth0.getIdTokenClaims();
+
+      const jwt = res.__raw;
+
+      const config = {
+        headers: { "Authorization": `Bearer ${jwt}` },
+        method: 'get',
+        baseURL: SERVER,
+        url: '/books'
+      }
 
     try {
-      const response = await axios.get(apiUrl);
+      const response = await axios.get(config);
       this.setState({ books: response.data });
 
     } catch (error) {
       console.log(error);
     }
   }
+}
+
+/*postBook = (newBook) => {
+  console.log('post books running');
+
+  const jwtPromise = this.getToken();
+  const url = `${SERVER}/books`;
+
+  jwtPromise
+    .then(jwt => {
+      const config = {
+        headers: { "Authorization": `Bearer ${jwt}` }
+      };
+
+      return axios.post(url, newBook, config);
+    })
+    .then(response => {
+      // Update state with the new book
+      this.setState((prevState) => ({ books: [...prevState.books, response.data] }));
+
+      // Log the new book
+      console.log(response.data);
+
+      // Fetch books
+      return this.fetchBooks();
+    })
+    .catch(error => {
+      console.error('Error posting book:', error);
+    });
+};
+*/
 
 
   postBook = (newBook) => {
     console.log('post books running')
-    
+
+    const jwtPromise = this.getToken();
     const url = `${SERVER}/books`
-    axios.post(url, newBook)
+
+    jwtPromise
+    .then(jwt => {
+      const config = {
+        headers: { "Authorization": `Bearer ${jwt}` }
+      };
+
+      return axios.post(url, newBook, config);
+    })
       .then(newBook => this.setState((prevState) => ({ books: [...prevState.books, newBook.data] })))
       .then(console.log(newBook))
       .then(this.fetchBooks())
@@ -72,50 +133,60 @@ class BestBooks extends React.Component {
       return;
   }
 
-    axios
-    .put(`${SERVER}/books/${bookToUpdate._id}`, bookToUpdate)
-    .then(response => {
-        const updatedBook = response.data;
-        this.setState(prevState => ({
-            books: prevState.books.map(existingBook =>
-                existingBook._id === updatedBook._id ? updatedBook : existingBook
-            ),
-            showUpdateAlert: true
-        }));
-    })
-    .catch(error => {
-        console.error('Error updating book:', error);
-    });
+  this.getToken()
+  .then(jwt => {
+    const config = {
+      headers: { "Authorization": `Bearer ${jwt}` }
+    };
+
+    return axios.put(`${SERVER}/books/${bookToUpdate._id}`, bookToUpdate, config);
+  })
+  .then(response => {
+    const updatedBook = response.data;
+    this.setState(prevState => ({
+      books: prevState.books.map(existingBook =>
+        existingBook._id === updatedBook._id ? updatedBook : existingBook
+      ),
+      showUpdateAlert: true
+    }));
+  })
+  .catch(error => {
+    console.error('Error updating book:', error);
+  });
 }
 
 
 
-  handleDelete = (id) => {
-    console.log('handleDelete running')
-    
-    
-    axios
-      .delete(`${SERVER}/books/${id}`)
-      .then((response) => {
-        const deletedBook = response.data;
-
-        this.setState({
-          deleted: deletedBook,
-        });
+handleDelete = (id) => {
+  console.log('handleDelete running');
+  
+  this.getToken()
+    .then(jwt => {
+      const config = {
+        headers: { "Authorization": `Bearer ${jwt}` }
+      };
       
-        const updatedBooks = this.state.books.filter((book) => book._id !== id);
-        this.setState({ books: updatedBooks });
-
-
-        
-      })
-      .then( this.setState({showAlert: true}))
-      .catch((error) => {
-        console.error('Error deleting book:', error);
-        //need to catch for Alert badge or will it catch on its own?
-        
+      return axios.delete(`${SERVER}/books/${id}`, config);
+    })
+    .then((response) => {
+      const deletedBook = response.data;
+      
+      this.setState({
+        deleted: deletedBook,
       });
-  };
+      
+      const updatedBooks = this.state.books.filter((book) => book._id !== id);
+      this.setState({ books: updatedBooks });
+    })
+    .then(() => {
+      this.setState({ showAlert: true });
+    })
+    .catch((error) => {
+      console.error('Error deleting book:', error);
+      // need to catch for Alert badge or will it catch on its own?
+    });
+};
+
 
   handleModal = (event) => {
       this.setState({ displayAddModal: true})
@@ -233,4 +304,5 @@ class BestBooks extends React.Component {
   }
 }
 
-export default BestBooks;
+
+export default withAuth0(BestBooks);
