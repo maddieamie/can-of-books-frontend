@@ -59,12 +59,16 @@ class BestBooks extends React.Component {
       };
   
       const response = await axios.get(config);
-      this.setState((prevState) => ({ books: response.data }));
   
+      this.setState((prevState) => {
+        // Use the previous state to ensure state consistency
+        return { books: [...prevState.books, ...response.data] };
+      });
     } catch (error) {
       console.error('Error fetching books:', error);
     }
   }
+  
   
 
 /*postBook = (newBook) => {
