@@ -3,7 +3,7 @@ import { Navbar, NavItem } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 import Login from './Login';
 import Logout from './Logout';
-import Profile from './Profile';
+
 import {withAuth0} from '@auth0/auth0-react';
 
 class Header extends React.Component {

@@ -43,34 +43,29 @@ class BestBooks extends React.Component {
   getToken = () => {
     return this.props.auth0.getIdTokenClaims()
     .then( res => res.__raw)
-    .catch(error => console.log(error))
+    .catch(error => console.log('Error getting token:', error))
   }
 
   async fetchBooks() {
-    console.log('fetch books running')
-    
-    if (this.props.auth0.isAuthenticated) {
-
-      const res = await this.props.auth0.getIdTokenClaims();
-
-      const jwt = res.__raw;
-
+    console.log('fetch books running');
+  
+    try {
+      const jwt = await this.getToken();
       const config = {
         headers: { "Authorization": `Bearer ${jwt}` },
         method: 'get',
         baseURL: SERVER,
         url: '/books'
-      }
-
-    try {
+      };
+  
       const response = await axios.get(config);
-      this.setState({ books: response.data });
-
+      this.setState((prevState) => ({ books: response.data }));
+  
     } catch (error) {
-      console.log(error);
+      console.error('Error fetching books:', error);
     }
   }
-}
+  
 
 /*postBook = (newBook) => {
   console.log('post books running');
@@ -278,7 +273,18 @@ handleDelete = (id) => {
             </Carousel.Item>
             )
             ) : (
-              <h3>No Books Found :( Please add one to our database!</h3>
+              <Carousel.Item>
+      <img
+        className="d-block w-100"
+        src="https://www.publicdomainpictures.net/pictures/140000/velka/black-square-with-fleck-pattern.jpg"
+        height="400px"
+        width="400px"
+        alt="black background"
+      />
+      <Carousel.Caption>
+        <h3>No Books Found :( Please add one to our database!</h3>
+      </Carousel.Caption>
+    </Carousel.Item>
             )}
             
           </Carousel>
