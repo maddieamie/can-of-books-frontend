@@ -72,7 +72,7 @@ class BestBooks extends React.Component {
 
 
 
-  postBook = (newBook) => {
+  /*postBook = (newBook) => {
     console.log('post books running')
 
     const jwtPromise = this.getToken();
@@ -86,14 +86,48 @@ class BestBooks extends React.Component {
       console.log("Request URL:", `${url} ${config}`);
       return axios.post(url, newBook, config);
     })
-      .then(newBook => this.setState((prevState) => ({ books: [...prevState.books, newBook.data] })))
-      .then(console.log(books))
-      .then(this.fetchBooks())
-      .catch ((error) => {
+    .then(response => {
+        const newbook = response.data;
+        return newbook})
+    this.setState({ books: [...books, newbook] })
+     // .then( this.fetchBooks())
+    .catch ((error) => {
         console.error('Error posting book:', error);
       })
+  }*/
+  
+  postBook = (newBook) => {
+    console.log('post books running')
+  
+    const jwtPromise = this.getToken();
+    const url = `${SERVER}/books`
+  
+    jwtPromise
+      .then(jwt => {
+        const config = {
+          headers: { "Authorization": `Bearer ${jwt}` }
+        };
+  
+        console.log("Request URL:", `${url} ${config}`);
+        return axios.post(url, newBook, config);
+      })
+      .then(response => {
+        const newBook = response.data;
+        console.log(newBook);
+        return newBook;
+      })
+      .then((newBook) => {
+        const updatedBooks = [...this.state.books, newBook];
+        this.setState({ books: updatedBooks, showUpdateAlert: true });
+        // If you want to fetch books after posting, you can call fetchBooks here
+        // this.fetchBooks();
+      })
+      .catch(error => {
+        console.error('Error posting book:', error);
+      });
   }
   
+
   handleUpdate = (bookToUpdate) => {
     console.log('HandleUpdate running');
 
@@ -122,6 +156,7 @@ class BestBooks extends React.Component {
     return  existingBook._id === updatedBook._id ? updatedBook : existingBook
   })
   this.setState({books: updatearray})
+  showUpdateAlert: true
   })
   /*.then(updatedBook => {this.setState(prevState => ({
       books: prevState.books.map(existingBook =>
