@@ -51,14 +51,13 @@ class BestBooks extends React.Component {
   
     try {
       const jwt = await this.getToken();
+      const url = `${SERVER}/books`
       const config = {
         headers: { "Authorization": `Bearer ${jwt}` },
-        method: 'get',
-        baseURL: SERVER,
-        url: '/books'
       };
-  
-      const response = await axios.get(config);
+      
+      
+      const response = await axios.get(url, config);
   
       this.setState((prevState) => {
         // Use the previous state to ensure state consistency
@@ -71,35 +70,6 @@ class BestBooks extends React.Component {
   
   
 
-/*postBook = (newBook) => {
-  console.log('post books running');
-
-  const jwtPromise = this.getToken();
-  const url = `${SERVER}/books`;
-
-  jwtPromise
-    .then(jwt => {
-      const config = {
-        headers: { "Authorization": `Bearer ${jwt}` }
-      };
-
-      return axios.post(url, newBook, config);
-    })
-    .then(response => {
-      // Update state with the new book
-      this.setState((prevState) => ({ books: [...prevState.books, response.data] }));
-
-      // Log the new book
-      console.log(response.data);
-
-      // Fetch books
-      return this.fetchBooks();
-    })
-    .catch(error => {
-      console.error('Error posting book:', error);
-    });
-};
-*/
 
 
   postBook = (newBook) => {
@@ -113,11 +83,11 @@ class BestBooks extends React.Component {
       const config = {
         headers: { "Authorization": `Bearer ${jwt}` }
       };
-
+      console.log("Request URL:", `${url} ${config}`);
       return axios.post(url, newBook, config);
     })
       .then(newBook => this.setState((prevState) => ({ books: [...prevState.books, newBook.data] })))
-      .then(console.log(newBook))
+      .then(console.log(books))
       .then(this.fetchBooks())
       .catch ((error) => {
         console.error('Error posting book:', error);
@@ -131,24 +101,42 @@ class BestBooks extends React.Component {
       console.error('Invalid book ID');
       return;
   }
+  const jwtPromise = this.getToken();
+    const url = `${SERVER}/books`
 
-  this.getToken()
-  .then(jwt => {
-    const config = {
-      headers: { "Authorization": `Bearer ${jwt}` }
-    };
-
-    return axios.put(`${SERVER}/books/${bookToUpdate._id}`, bookToUpdate, config);
-  })
+    jwtPromise
+    .then(jwt => {
+      const config = {
+        headers: { "Authorization": `Bearer ${jwt}` }
+      };
+    
+      return axios.put(`${url}/${bookToUpdate._id}`, bookToUpdate, config);
+    })
   .then(response => {
     const updatedBook = response.data;
-    this.setState(prevState => ({
+    console.log(updatedBook);
+    return updatedBook;})
+  .then((updatedBook) => {
+    const updatearray = this.state.books.map(existingBook => {
+    console.log(updatedBook, existingBook);
+    return  existingBook._id === updatedBook._id ? updatedBook : existingBook
+  })
+  this.setState({books: updatearray})
+  })
+  /*.then(updatedBook => {this.setState(prevState => ({
       books: prevState.books.map(existingBook =>
         existingBook._id === updatedBook._id ? updatedBook : existingBook
-      ),
+      )})
+  )})*/
+      
+    /*.then((response) => {
+        console.log(response);
+        const updatedBooks = this.state.books.filter((book) => book._id !== response.data._id);
+        console.log(updatedBooks);
+        this.setState({ books: updatedBooks }); 
+
       showUpdateAlert: true
-    }));
-  })
+    })*/
   .catch(error => {
     console.error('Error updating book:', error);
   });

@@ -7,7 +7,7 @@ const root = ReactDOM.createRoot(document.getElementById('root'));
 const uri = import.meta.env.VITE_AUTH0_REDIRECT_URI;
 
 root.render(
-  <React.StrictMode>
+ // <React.StrictMode>
   <Auth0Provider
     domain={import.meta.env.VITE_AUTH0_DOMAIN}
     clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
@@ -19,6 +19,6 @@ root.render(
     <App />
   
   </Auth0Provider>
-  </React.StrictMode>
+ // </React.StrictMode>
 );
 
